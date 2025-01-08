@@ -1,0 +1,11 @@
+# .NET Core / .NET 5+ build and test files
+bin/
+obj/
+
+# User-specific files
+.vs/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
