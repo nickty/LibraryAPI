@@ -1,5 +1,6 @@
 using LibraryAPI.Data;
 using LibraryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -50,6 +51,7 @@ namespace LibraryAPI.Controllers
         }
 
         // POST api/borrowrecords
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<BorrowRecord>> AddBorrowRecord([FromBody] BorrowRecord borrowRecord)
         {
