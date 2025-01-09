@@ -6,5 +6,6 @@ namespace LibraryAPI.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         // public Author Author { get; set; } // Navigation Property
+        public string PhoneNumber {get; set;}
     }
 }

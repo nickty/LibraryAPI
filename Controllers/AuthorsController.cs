@@ -4,6 +4,7 @@ using LibraryAPI.Data;
 using LibraryAPI.Models;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -26,6 +27,7 @@ public class AuthorsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddAuthor(Author author)
     {
         _context.Authors.Add(author);
