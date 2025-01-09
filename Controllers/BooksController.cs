@@ -1,5 +1,11 @@
+using LibraryAPI.Data;
+using LibraryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibraryAPI.Controllers
 {
@@ -7,43 +13,65 @@ namespace LibraryAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private static List<string> Books = new List<string> { "Book 1", "Book 2", "Book 3" };
+        private readonly LibraryDbContext _context;
+
+        // Injecting LibraryDbContext through constructor
+        public BooksController(LibraryDbContext context)
+        {
+            _context = context;
+        }
 
         // GET api/books
         [HttpGet]
-        public ActionResult<IEnumerable<string>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return Ok(Books);
+            var books = await _context.Books.Include(b => b.Author).ToListAsync(); // Includes author details
+            return Ok(books);
         }
 
         // GET api/books/{id}
         [HttpGet("{id}")]
-        public ActionResult<string> GetBook(int id)
+        public async Task<ActionResult<Book>> GetBook(int id)
         {
-            if (id < 0 || id >= Books.Count)
+            var book = await _context.Books.Include(b => b.Author).FirstOrDefaultAsync(b => b.BookID == id);
+
+            if (book == null)
             {
                 return NotFound();
             }
-            return Ok(Books[id]);
+
+            return Ok(book);
         }
 
         // POST api/books
+        [Authorize]
         [HttpPost]
-        public ActionResult AddBook([FromBody] string bookName)
+        public async Task<ActionResult<Book>> AddBook([FromBody] Book book)
         {
-            Books.Add(bookName);
-            return CreatedAtAction(nameof(GetBooks), new { id = Books.Count - 1 }, bookName);
+            if (book == null)
+            {
+                return BadRequest("Book data is invalid.");
+            }
+
+            _context.Books.Add(book);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
         }
 
         // DELETE api/books/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            if (id < 0 || id >= Books.Count)
+            var book = await _context.Books.FindAsync(id);
+            if (book == null)
             {
                 return NotFound();
             }
-            Books.RemoveAt(id);
+
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
