@@ -22,6 +22,17 @@ if (string.IsNullOrEmpty(secretKey))
 
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -77,6 +88,7 @@ if (app.Environment.IsDevelopment())
 
 // Configure middleware
 app.UseRouting();
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();  // Enable Authentication
 app.UseAuthorization();   // Enable Authorization
 

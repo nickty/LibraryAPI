@@ -59,6 +59,48 @@ namespace LibraryAPI.Controllers
             return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
         }
 
+        // PUT api/books/{id}
+        // [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, [FromBody] Book updatedBook)
+        {
+            if (id != updatedBook.BookID)
+            {
+                return BadRequest("Book ID mismatch.");
+            }
+
+            var existingBook = await _context.Books.FindAsync(id);
+            if (existingBook == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            // Update the book properties
+            existingBook.Title = updatedBook.Title;
+            existingBook.Genre = updatedBook.Genre;
+            existingBook.PublishedYear = updatedBook.PublishedYear;
+            existingBook.AuthorID = updatedBook.AuthorID;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Books.Any(b => b.BookID == id))
+                {
+                    return NotFound("Book no longer exists.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+
         // DELETE api/books/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)

@@ -28,7 +28,8 @@ namespace LibraryAPI.Controllers
         [HttpPost]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
-            var user = _context.Members.SingleOrDefault(u => u.Username == loginModel.Username && u.Password == loginModel.Password);
+            // var user = _context.Members.SingleOrDefault(u => u.Username == loginModel.Username && u.Password == loginModel.Password);
+            var user = _context.Members.FirstOrDefault(u => u.Username == loginModel.Username && u.Password == loginModel.Password);
             if (user == null)
             {
                 return Unauthorized("Invalid credentials");
